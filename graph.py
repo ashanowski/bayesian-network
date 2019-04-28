@@ -1,5 +1,6 @@
 from node import Node
 from exceptions import *
+from collections import Counter
 
 
 class Graph:
@@ -34,3 +35,34 @@ class Graph:
         else:
             error = "Node '{}' already exists in this graph".format(node_name)
             raise NodeExistsException(error)
+
+    def probability_count(self):
+        """ Return dictionary with nodes as keys and number
+            of probability table rows
+        """
+
+        # create all childs list in current graph (contains redunds)
+        child_list = list()
+        for node in self._nodes:
+            for child in node.childs:
+                child_list.append(child)
+
+        probability_count = Counter()
+
+        # count occurences of given node as a child
+        for node in self._nodes:
+            for child in child_list:
+                if node == child:
+                    probability_count[child] += 1
+
+        # add missing nodes' parents value as zeros
+        for node in self._nodes:
+            if node not in probability_count.keys():
+                probability_count[node] = 0
+            
+        # define how big should probability table be
+        for node, parents in probability_count.items():
+            probability_count[node] = 2 ** parents
+
+
+        return probability_count
